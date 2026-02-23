@@ -29,12 +29,17 @@ export async function pickXrplAddress(sdk: xApp): Promise<string> {
     };
 
     sdk.on('destination', onDestination);
-    sdk.selectDestination().then((res) => {
-      if (res instanceof Error) {
+    Promise.resolve(sdk.selectDestination())
+      .then((res: boolean | Error | void) => {
+        if (res instanceof Error) {
+          sdk.off('destination', onDestination);
+          reject(res);
+        }
+      })
+      .catch((e: unknown) => {
         sdk.off('destination', onDestination);
-        reject(res);
-      }
-    });
+        reject(e instanceof Error ? e : new Error(String(e)));
+      });
   });
 }
 

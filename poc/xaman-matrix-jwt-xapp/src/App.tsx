@@ -1,5 +1,13 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import type { MatrixClient, MatrixEvent, Room } from 'matrix-js-sdk';
+import {
+  ClientEvent,
+  Preset,
+  RoomEvent,
+  Visibility,
+  type MatrixClient,
+  type MatrixEvent,
+  type Room,
+} from 'matrix-js-sdk';
 import { createAuthedClient, isHttpsUrl, loginWithJwt, type MatrixSession } from './lib/matrix';
 import { safeJsonParse, safeJsonStringify } from './lib/storage';
 import { createXamanSdk, getXamanContext, pickXrplAddress } from './lib/xaman';
@@ -68,7 +76,7 @@ export default function App() {
   // Notify Xaman host that UI is ready (best effort).
   useEffect(() => {
     if (!xamanCtx.isXaman) return;
-    xamanSdk.ready().catch(() => undefined);
+    Promise.resolve(xamanSdk.ready()).catch(() => undefined);
   }, [xamanCtx.isXaman, xamanSdk]);
 
   // (Re)create Matrix client when we have a session.
@@ -86,12 +94,12 @@ export default function App() {
     setClient(c);
 
     const onSync = (state: string) => setSyncState(state);
-    c.on('sync', onSync);
+    c.on(ClientEvent.Sync, onSync);
 
     c.startClient({ initialSyncLimit: 20 });
 
     return () => {
-      c.removeListener('sync', onSync);
+      c.removeListener(ClientEvent.Sync, onSync);
       c.stopClient();
     };
   }, [session]);
@@ -116,15 +124,15 @@ export default function App() {
     const onRoomName = () => updateRooms();
     const onRoomMyMembership = () => updateRooms();
 
-    client.on('Room', onRoom);
-    client.on('Room.name', onRoomName);
-    client.on('Room.myMembership', onRoomMyMembership);
+    client.on(ClientEvent.Room, onRoom);
+    client.on(RoomEvent.Name, onRoomName);
+    client.on(RoomEvent.MyMembership, onRoomMyMembership);
 
     updateRooms();
     return () => {
-      client.removeListener('Room', onRoom);
-      client.removeListener('Room.name', onRoomName);
-      client.removeListener('Room.myMembership', onRoomMyMembership);
+      client.removeListener(ClientEvent.Room, onRoom);
+      client.removeListener(RoomEvent.Name, onRoomName);
+      client.removeListener(RoomEvent.MyMembership, onRoomMyMembership);
     };
   }, [client]);
 
@@ -146,16 +154,21 @@ export default function App() {
       setEvents(evs.filter(isTextEvent));
     };
 
-    const onTimeline = (ev: MatrixEvent, r: Room | undefined) => {
+    const onTimeline = (
+      ev: MatrixEvent,
+      r: Room | undefined,
+      toStartOfTimeline: boolean | undefined,
+    ) => {
+      if (toStartOfTimeline) return;
       if (!r || r.roomId !== activeRoomId) return;
       if (!isTextEvent(ev)) return;
       update();
     };
 
-    client.on('Room.timeline', onTimeline);
+    client.on(RoomEvent.Timeline, onTimeline);
     update();
     return () => {
-      client.removeListener('Room.timeline', onTimeline);
+      client.removeListener(RoomEvent.Timeline, onTimeline);
     };
   }, [client, activeRoomId]);
 
@@ -219,9 +232,9 @@ export default function App() {
     }
     setBusy('Joining room…');
     try {
-      const roomId = await client.joinRoom(target);
+      const room = await client.joinRoom(target);
       setJoinInput('');
-      setActiveRoomId(roomId);
+      setActiveRoomId(room.roomId);
     } catch (e) {
       setError(`Join failed.\n${toErrorMessage(e)}`);
     } finally {
@@ -241,8 +254,8 @@ export default function App() {
     try {
       const res = await client.createRoom({
         name,
-        preset: 'private_chat',
-        visibility: 'private',
+        preset: Preset.PrivateChat,
+        visibility: Visibility.Private,
       });
       setCreateInput('');
       setActiveRoomId(res.room_id);
