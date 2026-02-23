@@ -1,0 +1,13 @@
+{
+  "name": "Matrix JWT xApp POC",
+  "shortName": "MatrixJWTPOC",
+  "description": "Minimal Matrix xApp for Synapse JWT auth (org.matrix.login.jwt).",
+  "version": "0.1.0",
+  "entry": "/",
+  "icon": "/xapp-icon.svg",
+  "permissions": [],
+  "developer": {
+    "name": "Your Name or Team",
+    "url": "https://your-developer-site.example"
+  }
+}

@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" role="img" aria-label="Matrix xApp icon">
+  <rect width="256" height="256" rx="48" fill="#2f4fff" />
+  <path
+    d="M48 72h160v112H48z"
+    fill="#eef2ff"
+    stroke="#0b1020"
+    stroke-width="8"
+    stroke-linejoin="round"
+  />
+  <path d="M72 100h112M72 128h56M72 156h84" stroke="#2f4fff" stroke-width="12" stroke-linecap="round" />
+</svg>
