@@ -1,6 +1,14 @@
 import { type FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Xumm } from "@xaman/xdk";
-import { createClient, MsgType, type MatrixClient, type Room, SyncState } from "matrix-js-sdk";
+import {
+  createClient,
+  MsgType,
+  Preset,
+  type MatrixClient,
+  type Room,
+  SyncState,
+  Visibility,
+} from "matrix-js-sdk";
 import "./App.css";
 
 /**
@@ -460,8 +468,8 @@ function App() {
         const response = await matrixClient.createRoom({
           name: trimmedName,
           topic: trimmedTopic || undefined,
-          preset: "private_chat",
-          visibility: "private",
+          preset: Preset.PrivateChat,
+          visibility: Visibility.Private,
         });
         setCreateRoomName("");
         setCreateRoomTopic("");
