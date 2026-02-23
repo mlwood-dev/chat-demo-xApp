@@ -1,7 +1,5 @@
-experiment
-dist
 node_modules
-devAssets
-
-.DS_Store
-.idea
+dist
+*.local
+.env
+.env.*

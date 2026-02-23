@@ -1,0 +1,11 @@
+{
+  "name": "Matrix xApp",
+  "description": "A Matrix protocol client for Xaman wallet, supporting JWT-based login with Synapse homeservers.",
+  "version": "1.0.0",
+  "icon": "favicon.svg",
+  "permissions": {
+    "network": true,
+    "storage": true
+  },
+  "entry": "index.html"
+}
