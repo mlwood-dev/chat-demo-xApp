@@ -1,0 +1,30 @@
+{
+  "name": "xaman-matrix-jwt-xapp-poc",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "description": "POC Matrix client xApp for Xaman, using Synapse legacy JWT login (org.matrix.login.jwt).",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "dev": "vite --host --port 5173",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview --host --port 5173",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  },
+  "dependencies": {
+    "matrix-js-sdk": "^35.0.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "xumm-xapp-sdk": "^1.7.1"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.5",
+    "@types/react": "^18.2.48",
+    "@types/react-dom": "^18.2.18",
+    "@vitejs/plugin-react": "^4.2.1",
+    "typescript": "^5.3.3",
+    "vite": "^5.4.15"
+  }
+}

@@ -1,0 +1,9 @@
+{
+  "schema": "xapp.json/v1",
+  "name": "Matrix xApp (JWT POC)",
+  "description": "Proof-of-concept Matrix client for Xaman xApps using Synapse legacy JWT login (org.matrix.login.jwt).",
+  "version": "0.0.1",
+  "icon": "icon.svg",
+  "entrypoint": "index.html"
+}
+
