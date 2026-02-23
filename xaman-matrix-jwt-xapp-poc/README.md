@@ -1,73 +1,121 @@
-# React + TypeScript + Vite
+# Matrix JWT xApp POC (Xaman + Synapse 1.47.1)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Minimal proof-of-concept Matrix client intended for Xaman xApp WebView.
 
-Currently, two official plugins are available:
+## Features
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- Login using Synapse legacy JWT flow: `org.matrix.login.jwt`
+- Room list and room timeline
+- Join room by alias/ID
+- Create private room
+- Send plain text messages
+- Basic Xaman environment detection and optional XRPL account display
 
-## React Compiler
+## Tech Stack
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+- React + TypeScript + Vite
+- `matrix-js-sdk`
+- `@xaman/xdk` (installed as an npm alias to the official `xumm` package)
 
-## Expanding the ESLint configuration
+## Prerequisites
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Node.js 18+
+- A Synapse homeserver with JWT login enabled (tested target: 1.47.1 behavior)
+- A JWT that your homeserver accepts for `org.matrix.login.jwt`
+- HTTPS hosting target for xApp testing
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## Local Development
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Open the URL shown by Vite in your browser.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+## Environment Variables
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+Create a local env file (for example `.env.local`) if desired:
+
+```bash
+VITE_DEFAULT_HOMESERVER_URL=https://your-synapse-server.com
+VITE_XAMAN_API_KEY=xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx
 ```
+
+Notes:
+
+- `VITE_DEFAULT_HOMESERVER_URL` pre-fills the homeserver input.
+- `VITE_XAMAN_API_KEY` is optional. It improves Xaman context retrieval in app runtime.
+
+## Build
+
+```bash
+npm run build
+npm run preview
+```
+
+## Synapse JWT Notes (1.47.1 Compatibility)
+
+- Login type used by this app: `org.matrix.login.jwt`
+- JWT is entered manually in the UI (no backend JWT minting in this POC).
+- Ensure your JWT contains a valid `sub` claim mapped by Synapse to the Matrix user identity expected by your JWT auth configuration.
+- Homeserver URL must be HTTPS in this client.
+
+## Developer Instructions: Xaman xApp Builder + Xaman App
+
+### 1) Prepare a reachable HTTPS URL
+
+Xaman xApps must load over HTTPS. For development, either:
+
+- deploy the app build to an HTTPS host, or
+- expose local dev with a secure tunnel (for example, ngrok or Cloudflare Tunnel).
+
+If using local dev, keep Vite running:
+
+```bash
+npm run dev -- --host 0.0.0.0 --port 5173
+```
+
+Then tunnel that URL using your preferred HTTPS tunneling tool.
+
+### 2) Configure in Xaman xApp Builder (sandbox/developer mode)
+
+1. Open the Xaman xApp Builder for your developer account.
+2. Create or edit your sandbox xApp project.
+3. Set the xApp URL/entrypoint to your HTTPS app URL.
+4. Use the included `xapp.json` values as your manifest baseline:
+   - name/short name
+   - description
+   - icon path
+   - entry path
+5. Save/publish to sandbox.
+
+### 3) Open and test in Xaman app
+
+1. Use the Builder-provided launch method (deep link/QR) to open the sandbox xApp in Xaman.
+2. Confirm runtime section shows xApp environment.
+3. Enter:
+   - your Synapse HTTPS base URL
+   - your JWT token
+4. Press **Login with JWT**.
+5. Validate:
+   - room list loads
+   - join room works (`#alias:server` or `!roomId:server`)
+   - create room works
+   - timeline updates
+   - text sending works
+
+### 4) Recommended test checklist
+
+- Invalid JWT shows clear error
+- Unreachable homeserver shows clear error
+- Non-HTTPS homeserver is blocked client-side
+- Login/logout cycles do not crash
+- Timeline and room list refresh after actions
+
+## Project Files
+
+- `src/App.tsx` - main app logic and UI
+- `src/App.css` - responsive layout/styling
+- `xapp.json` - xApp manifest example
+- `public/xapp-icon.svg` - simple icon for manifest usage
